@@ -112,9 +112,12 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="counterLabel" destination="rQJ-5y-HLG" id="mei-Fd-MzA"/>
+                        <outlet property="counterLabel" destination="rQJ-5y-HLG" id="Auw-4D-oMk"/>
                         <outlet property="imageView" destination="hEo-1x-Lj4" id="7NM-aN-nf4"/>
-                        <outlet property="textLabel" destination="5aJ-MU-JNp" id="uF6-ci-y3S"/>
+                        <outlet property="noButton" destination="bBl-Ph-N0K" id="jWc-dI-6or"/>
+                        <outlet property="questionTextLabel" destination="bPE-SY-lnE" id="HE9-e8-ceE"/>
+                        <outlet property="textLabel" destination="5aJ-MU-JNp" id="HXw-Xj-xoi"/>
+                        <outlet property="yesButton" destination="qmi-XT-t4T" id="NRi-0n-cWA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
