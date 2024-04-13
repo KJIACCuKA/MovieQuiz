@@ -45,7 +45,7 @@
                                             </label>
                                         </subviews>
                                     </stackView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" image="The Green Knight" translatesAutoresizingMaskIntoConstraints="NO" id="hEo-1x-Lj4" userLabel="Preview Image">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" image="The Dark Knight" translatesAutoresizingMaskIntoConstraints="NO" id="hEo-1x-Lj4" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.666666666666686" width="390" height="585"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="hEo-1x-Lj4" secondAttribute="height" multiplier="2:3" id="tfO-2v-BLq"/>
@@ -126,7 +126,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="The Green Knight" width="1382" height="2048"/>
+        <image name="The Dark Knight" width="683" height="1024"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

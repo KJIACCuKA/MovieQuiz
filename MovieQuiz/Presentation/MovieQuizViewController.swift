@@ -37,60 +37,63 @@ final class MovieQuizViewController: UIViewController {
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
-    private let questions: [QuizQuestion] = [QuizQuestion(
-                                                image: "The Godfather",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: true),
-                                             
-                                             QuizQuestion(
-                                                image: "The Dark Knight",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: true),
-                                             
-                                             QuizQuestion(
-                                                image: "Kill Bill",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: true),
-                                             
-                                             QuizQuestion(
-                                                image: "The Avengers",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: true),
-                                             
-                                             QuizQuestion(
-                                                image: "Deadpool",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: true),
-                                             
-                                             QuizQuestion(
-                                                image: "The Green Knight",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: true),
-                                             
-                                             QuizQuestion(
-                                                image: "Old",
-                                                text: "Рейтинг этого фильма больше, чем 6?",
-                                                correctAnswer: false),
-                                             
-                                             QuizQuestion(
-                                                image: "The Ice Age Adventures of Buck Wild",
-                                                text: "Рейтинг этого фильма больше чем 6?",
-                                                correctAnswer: false),
-                                             
-                                             QuizQuestion(
-                                                image: "Tesla",
-                                                text: "Рейтинг этого фильма больше чем 6?",
-                                                correctAnswer: false),
-                                             
-                                             QuizQuestion(
-                                                image: "Vivarium",
-                                                text: "Рейтинг этого фильма больше чем 6?",
-                                                correctAnswer: false)
-                                            ]
+    private let questions: [QuizQuestion] = [
+        QuizQuestion(
+            image: "The Dark Knight",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: true),
+        
+        QuizQuestion(
+            image: "Kill Bill",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: true),
+        
+        QuizQuestion(
+            image: "The Avengers",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: true),
+        
+        QuizQuestion(
+            image: "The Godfather",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: true),
+        
+        QuizQuestion(
+            image: "Deadpool",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: true),
+        
+        QuizQuestion(
+            image: "The Green Knight",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: true),
+        
+        QuizQuestion(
+            image: "Old",
+            text: "Рейтинг этого фильма больше, чем 6?",
+            correctAnswer: false),
+        
+        QuizQuestion(
+            image: "The Ice Age Adventures of Buck Wild",
+            text: "Рейтинг этого фильма больше чем 6?",
+            correctAnswer: false),
+        
+        QuizQuestion(
+            image: "Tesla",
+            text: "Рейтинг этого фильма больше чем 6?",
+            correctAnswer: false),
+        
+        QuizQuestion(
+            image: "Vivarium",
+            text: "Рейтинг этого фильма больше чем 6?",
+            correctAnswer: false)
+    ]
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.imageView.layer.cornerRadius = 20
+        self.imageView.clipsToBounds = true
         textLabel.font = UIFont(name: "YS Display Bold", size: 23)
         counterLabel.font = UIFont(name: "YS Display Medium", size: 20)
         yesButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
@@ -149,12 +152,11 @@ final class MovieQuizViewController: UIViewController {
         if isCorrect {
             correctAnswers += 1
         }
-        
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = 6
-        
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResults()
@@ -163,6 +165,9 @@ final class MovieQuizViewController: UIViewController {
     
     // показывает либо следующий вопрос, либо результат квиза
     private func showNextQuestionOrResults() {
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+        imageView.layer.borderWidth = 0
         if currentQuestionIndex == questions.count - 1 {
             let text = "Ваш результат: \(correctAnswers)/10"
             let viewModel = QuizResultViewModel(title: "Этот раунд окончен!", text: text, buttonText: "Сыграть еще раз")
