@@ -1,6 +1,7 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    
     
     @IBOutlet private weak var questionTextLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
@@ -19,7 +20,7 @@ final class MovieQuizViewController: UIViewController {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private let questionAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     
     // MARK: - Lifecycle
@@ -32,15 +33,30 @@ final class MovieQuizViewController: UIViewController {
         yesButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
         noButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
         questionTextLabel.font = UIFont(name: "YS Display Medium", size: 20)
+        let questionFactory = QuestionFactory()
+                questionFactory.setup(delegate: self)
+                self.questionFactory = questionFactory
         
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = convert(model: firstQuestion)
-            show(quiz: viewModel )
-        }
+        questionFactory.requestNextQuestion()
         
     }
     
+    // MARK: - QuestionFactoryDelegate
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: ViewModel)
+            
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        show(quiz: viewModel)
+    }
     
     // Пользователь нажал на кнопку "Да"
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
@@ -78,11 +94,7 @@ final class MovieQuizViewController: UIViewController {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            if let firstQuestion = self.questionFactory.requestNextQuestion() {
-                self.currentQuestion = firstQuestion
-                let viewModel = self.convert(model: firstQuestion)
-                self.show(quiz: viewModel)
-            }
+            questionFactory.requestNextQuestion()
         }
         
         alert.addAction(action)
@@ -119,12 +131,7 @@ final class MovieQuizViewController: UIViewController {
         } else {
             currentQuestionIndex += 1
             
-            if let nextQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = nextQuestion
-                let viewModel = convert(model: nextQuestion)
-                
-                show(quiz: viewModel)
-            }
+            self.questionFactory.requestNextQuestion()
         }
     }
 }
