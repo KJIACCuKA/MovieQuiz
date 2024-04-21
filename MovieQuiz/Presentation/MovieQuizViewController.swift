@@ -1,6 +1,18 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+    func showAlert(with model: AlertModel) {
+        let alert = UIAlertController(title: model.title, message: model.message, preferredStyle: .alert)
+        let action = UIAlertAction(title: model.buttonText, style: .default) { [weak self] _ in
+            guard let self = self else {return}
+            model.completion?()
+            questionFactory?.requestNextQuestion()
+            self.imageView.layer.borderColor = UIColor.clear.cgColor
+        }
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+    
     
     
     @IBOutlet private weak var questionTextLabel: UILabel!
@@ -37,7 +49,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 questionFactory.setup(delegate: self)
                 self.questionFactory = questionFactory
         
-        questionFactory.requestNextQuestion()
+        if let firstQuestion = questionFactory.requestNextQuestion() {
+            currentQuestion = firstQuestion
+            let viewModel = convert(model: firstQuestion)
+            show(quiz: viewModel)
+        }
         
     }
     
@@ -50,12 +66,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let viewModel = convert(model: question)
         
         DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: ViewModel)
+            self?.show(quiz: viewModel)
             
         }
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        show(quiz: viewModel)
     }
     
     // Пользователь нажал на кнопку "Да"
@@ -86,21 +99,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         textLabel.text = step.question
     }
     
-    // Показать результат квиза
-    private func show(quiz result: QuizResultViewModel) {
-        let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            
-            questionFactory.requestNextQuestion()
-        }
-        
-        alert.addAction(action)
-        
-        self.present(alert, animated: true, completion: nil)
-    }
+    
     
     // меняет цвет рамки после ответа пользователя
     private func showAnswerResult(isCorrect: Bool) {
@@ -126,12 +125,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.borderWidth = 0
         if currentQuestionIndex == questionAmount - 1 {
             let text = correctAnswers == questionAmount ? "Поздравляем, вы ответили на 10 из 10!" : "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз"
-            let viewModel = QuizResultViewModel(title: "Этот раунд окончен!", text: text, buttonText: "Сыграть еще раз")
-            show(quiz: viewModel)
+            let alertModel = AlertModel(title: "Этот раунд окончен!", message: text, buttonText: "Сыграть еще раз", completion: nil)
+            let alertPresenter = AlertPresenter()
+            alertPresenter.delegate = self
+            alertPresenter.presenterAlert(with: alertModel)
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
         } else {
             currentQuestionIndex += 1
-            
-            self.questionFactory.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
         }
     }
 }

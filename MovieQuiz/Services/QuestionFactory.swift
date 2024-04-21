@@ -3,9 +3,6 @@ import Foundation
 class QuestionFactory: QuestionFactoryProtocol {
     weak var delegate: QuestionFactoryDelegate?
 
-        func setup(delegate: QuestionFactoryDelegate) {
-            self.delegate = delegate
-        }
     func requestNextQuestion() {
         guard let index = (0..<questions.count).randomElement() else {
             delegate?.didReceiveNextQuestion(question: nil)
@@ -13,6 +10,17 @@ class QuestionFactory: QuestionFactoryProtocol {
         }
             let question = questions[safe: index]
             delegate?.didReceiveNextQuestion(question: question)
+    }
+    
+    func requestNextQuestion() -> QuizQuestion? {
+        guard let index = (0..<questions.count).randomElement() else {
+            return nil
+        }
+        return questions[safe: index]
+    }
+    
+    func setup(delegate: QuestionFactoryDelegate) {
+        self.delegate = delegate
     }
     
     private let questions: [QuizQuestion] = [
