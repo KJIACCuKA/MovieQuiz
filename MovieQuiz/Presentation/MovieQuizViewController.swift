@@ -1,5 +1,6 @@
 import UIKit
 
+<<<<<<< Updated upstream
 final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -9,6 +10,17 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var imageView: UIImageView!
+=======
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    
+    
+    @IBOutlet private weak var questionTextLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var noButton: UIButton!
+>>>>>>> Stashed changes
     
     struct ViewModel {
         let image: UIImage
@@ -38,6 +50,7 @@ final class MovieQuizViewController: UIViewController {
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
+<<<<<<< Updated upstream
     private let questions: [QuizQuestion] = [QuizQuestion(
                                                 image: "The Godfather",
                                                 text: "Рейтинг этого фильма больше чем 6?",
@@ -88,6 +101,52 @@ final class MovieQuizViewController: UIViewController {
                                                 text: "Рейтинг этого фильма больше чем 6?",
                                                 correctAnswer: false)
                                             ]
+=======
+    private let questionAmount: Int = 10
+    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var currentQuestion: QuizQuestion?
+    private var statisticService: StatisticServiceProtocol?
+    private var alertPresenter: AlertPresenter?
+    
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.imageView.layer.cornerRadius = 20
+        self.imageView.clipsToBounds = true
+        textLabel.font = UIFont(name: "YS Display Bold", size: 23)
+        counterLabel.font = UIFont(name: "YS Display Medium", size: 20)
+        yesButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
+        noButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
+        questionTextLabel.font = UIFont(name: "YS Display Medium", size: 20)
+        let questionFactory = QuestionFactory()
+                questionFactory.setup(delegate: self)
+                self.questionFactory = questionFactory
+        
+        if let firstQuestion = questionFactory.requestNextQuestion() {
+            currentQuestion = firstQuestion
+            let viewModel = convert(model: firstQuestion)
+            show(quiz: viewModel)
+        }
+        alertPresenter = AlertPresenter(delegate: self)
+        statisticService = StatisticServiceImplementation()
+
+    }
+    
+    
+    // MARK: - QuestionFactoryDelegate
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+            
+        }
+    }
+>>>>>>> Stashed changes
     
     // Пользователь нажал на кнопку "Да"
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
@@ -117,6 +176,7 @@ final class MovieQuizViewController: UIViewController {
         textLabel.text = step.question
     }
     
+<<<<<<< Updated upstream
     // Показать результат квиза
     private func show(quiz result: QuizResultViewModel) {
         let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
@@ -133,6 +193,22 @@ final class MovieQuizViewController: UIViewController {
         
         self.present(alert, animated: true, completion: nil)
     }
+=======
+    func showAlert(with model: AlertModel) {
+        let alert = UIAlertController(title: model.title, message: model.message, preferredStyle: .alert)
+        let action = UIAlertAction(title: model.buttonText, style: .default) { [weak self] _ in
+            guard let self = self else {return}
+            model.completion()
+            questionFactory.requestNextQuestion()
+            self.imageView.layer.borderColor = UIColor.clear.cgColor
+        }
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    
+    
+>>>>>>> Stashed changes
     
     // меняет цвет рамки после ответа пользователя
     private func showAnswerResult(isCorrect: Bool) {
@@ -153,6 +229,7 @@ final class MovieQuizViewController: UIViewController {
     
     // показывает либо следующий вопрос, либо результат квиза
     private func showNextQuestionOrResults() {
+<<<<<<< Updated upstream
         if currentQuestionIndex == questions.count - 1 {
             let text = "Ваш результат: \(correctAnswers)/10"
             let viewModel = QuizResultViewModel(title: "Этот раунд окончен!", text: text, buttonText: "Сыграть еще раз")
@@ -164,6 +241,34 @@ final class MovieQuizViewController: UIViewController {
             let viewModel = convert(model: nextQuestion)
             
             show(quiz: viewModel)
+=======
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+        imageView.layer.borderWidth = 0
+        if currentQuestionIndex == questionAmount - 1 {
+            statisticService?.store(correct: correctAnswers, total: questionAmount)
+            let text = """
+            Ваш результат: \(correctAnswers)/\(questionAmount)
+            Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
+            Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(statisticService?.bestGame.total ?? 0) (\(statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString))
+            Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))%
+            """
+            
+            let alertModel = AlertModel(
+                title: "Этот раунд окончен!",
+                message: text,
+                buttonText: "Сыграть еще раз",
+                completion: { [weak self] in
+                    guard let self else { return }
+                    self.currentQuestionIndex = 0
+                    self.correctAnswers = 0
+                    questionFactory.requestNextQuestion()
+                })
+            alertPresenter?.showAlert(with: alertModel)
+        } else {
+            currentQuestionIndex += 1
+            questionFactory.requestNextQuestion()
+>>>>>>> Stashed changes
         }
     }
 }
