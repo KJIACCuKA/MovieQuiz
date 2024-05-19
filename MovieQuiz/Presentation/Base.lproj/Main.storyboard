@@ -39,6 +39,7 @@
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="1/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rQJ-5y-HLG" userLabel="Index Label">
                                                 <rect key="frame" x="349.66666666666669" y="0.0" width="40.333333333333314" height="23.333333333333332"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="Index"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <color key="textColor" name="YP White"/>
                                                 <nil key="highlightedColor"/>
@@ -47,6 +48,7 @@
                                     </stackView>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="hEo-1x-Lj4" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.333333333333314" width="390" height="585"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="Poster"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="hEo-1x-Lj4" secondAttribute="height" multiplier="2:3" id="tfO-2v-BLq"/>
                                         </constraints>
@@ -63,6 +65,7 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bBl-Ph-N0K">
                                                 <rect key="frame" x="0.0" y="0.0" width="185" height="60"/>
                                                 <color key="backgroundColor" name="YP White"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="No"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="60" id="kYL-dA-yoT"/>
                                                 </constraints>
@@ -83,6 +86,7 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qmi-XT-t4T">
                                                 <rect key="frame" x="205" y="0.0" width="185" height="60"/>
                                                 <color key="backgroundColor" name="YP White"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="Yes"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Да">
