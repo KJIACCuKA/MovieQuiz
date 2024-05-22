@@ -3,11 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>UIAppFonts</key>
-	<array/>
-	<key>Item 1</key>
-	<string>YS Display-Medium.ttf</string>
-	<key>Item 0</key>
-	<string>YS Display-Bold.ttf</string>
+	<array>
+		<string>YS Display-Bold.ttf</string>
+		<string>YS Display-Medium.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -21,8 +20,6 @@
 					<string>Default Configuration</string>
 					<key>UISceneDelegateClassName</key>
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
 				</dict>
 			</array>
 		</dict>

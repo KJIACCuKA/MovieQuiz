@@ -1,171 +1,138 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
+    // MARK: - UIProperties
+    private let yesButton = MQButton(title: "Да", accessibilityID: "Yes")
+    private let noButton = MQButton(title: "Нет", accessibilityID: "No")
+    private let questionTitleLabel = MQLabel(labelText: "Вопрос:", fontSize: 20, alignment: .left, fontStyle: .medium, "Question Title")
+    private let counterLabel = MQLabel(labelText: "10/10", fontSize: 20, alignment: .right, fontStyle: .medium, "Index")
+    private let questionLabel = MQLabel(labelText: "Рейтинг этого фильма меньше, чем 5?", fontSize: 23, alignment: .center, fontStyle: .bold, "Question")
     
-    @IBOutlet private weak var questionTextLabel: UILabel!
-    @IBOutlet private weak var counterLabel: UILabel!
-    @IBOutlet private weak var textLabel: UILabel!
-    @IBOutlet private weak var imageView: UIImageView!
-    @IBOutlet private weak var yesButton: UIButton!
-    @IBOutlet private weak var noButton: UIButton!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    private let previewImage: UIImageView = {
+        let image = UIImageView()
+        image.accessibilityIdentifier = "Poster"
+        image.layer.cornerRadius = 20
+        image.contentMode = .scaleAspectFill
+        image.layer.masksToBounds = true
+        image.backgroundColor = UIColor.ypWhite
+        return image
+    }()
     
+    private let mainVerticalStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.spacing = 20
+        stack.distribution = .fill
+        stack.axis = .vertical
+        return stack
+    }()
     
-    struct ViewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
-    private let presenter = MovieQuizPresenter()
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
-    private var statisticService: StatisticServiceProtocol?
-    private var alertPresenter: AlertPresenter?
+    private let labelsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.distribution = .fill
+        stack.alignment = .fill
+        stack.axis = .horizontal
+        return stack
+    }()
+    
+    private let buttonsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.spacing = 20
+        stack.distribution = .fillEqually
+        stack.axis = .horizontal
+        return stack
+    }()
+    
+    private let activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.style = .large
+        indicator.color = .ypGray
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+    
+    // MARK: - Properties
+    var presenter: MovieQuizPresenterProtocol?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.imageView.layer.cornerRadius = 20
-        self.imageView.clipsToBounds = true
-        textLabel.font = UIFont(name: "YS Display Bold", size: 23)
-        counterLabel.font = UIFont(name: "YS Display Medium", size: 20)
-        yesButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
-        noButton.titleLabel?.font = UIFont(name: "YS Display Medium", size: 20)
-        questionTextLabel.font = UIFont(name: "YS Display Medium", size: 20)
-        alertPresenter = AlertPresenter(delegate: self)
-        statisticService = StatisticServiceImplementation()
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-            statisticService = StatisticServiceImplementation()
-
-            showLoadingIndicator()
-            questionFactory?.loadData()
-        presenter.viewController = self
-    }
-    
-    // MARK: - QuestionFactoryDelegate
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
+        setupView()
+        setConstraints()
+        setButtonTarget()
         
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
+        presenter?.startGame()
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
+    func setupView() {
+        view.backgroundColor = UIColor.ypBlack
+        view.addSubviews(mainVerticalStackView, activityIndicator)
+        
+        [labelsStackView, previewImage, questionLabel, buttonsStackView].forEach { mainVerticalStackView.addArrangedSubview($0) }
+        
+        [questionTitleLabel, counterLabel].forEach { labelsStackView.addArrangedSubview($0) }
+        
+        [noButton, yesButton].forEach { buttonsStackView.addArrangedSubview($0) }
+    }
+    
+    func setConstraints() {
+        NSLayoutConstraint.activate([
             
-        }
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            mainVerticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            mainVerticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            mainVerticalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            mainVerticalStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            buttonsStackView.heightAnchor.constraint(equalToConstant: 60),
+            
+            previewImage.widthAnchor.constraint(equalTo: previewImage.heightAnchor, multiplier: 2 / 3)
+            
+        ])
     }
     
-    // Пользователь нажал на кнопку "Да"
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
-        presenter.yesButtonClicked()
+    func setButtonTarget() {
+        yesButton.addTarget(self, action: #selector(yesButtonClicked), for: .touchUpInside)
+        noButton.addTarget(self, action: #selector(noButtonClicked), for: .touchUpInside)
     }
     
-    // Пользователь нажал на кнопку "Нет"
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
-        presenter.noButtonClicked()
-    }
-    
-    // Загрузочный индикатор
-    private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
+    func showLoadingIndicator() {
         activityIndicator.startAnimating()
     }
     
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
+    func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
     }
     
-    func didFailToLoadData(with error: any Error) {
-        showNetworkError(message: error.localizedDescription)
+    @objc private func yesButtonClicked() {
+        presenter?.yesButtonClicked(viewController: self)
     }
     
-    // показ алерта с интернет-ошибкой
-    private func showNetworkError(message: String) {
-        
-        let model = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
-            guard let self = self else {return }
-            
-            self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
-            
-            self.questionFactory?.requestNextQuestion()
-        }
-        alertPresenter?.presenterAlert(with: model)
-        showAlert(with: model)
+    @objc private func noButtonClicked() {
+        presenter?.noButtonClicked(viewController: self)
     }
     
-    private func show(quiz step: QuizStepViewModel) {
-        counterLabel.text = step.questionNumber
-        imageView.image = step.image
-        textLabel.text = step.question
+    func setupGame(with model: QuizQuestion) {
+        let quiz = presenter?.convert(model: model)
+        counterLabel.text = quiz?.questionNumber
+        previewImage.image = quiz?.image
+        questionLabel.text = quiz?.question
     }
     
-    
-    
-    // меняет цвет рамки после ответа пользователя
     func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-        }
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.showNextQuestionOrResults()
-        }
+        previewImage.layer.borderWidth = 8
+        previewImage.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        [yesButton, noButton].forEach { $0.isEnabled = false }
     }
     
-    // показ Алерта
-    func showAlert(with model: AlertModel) {
-        let alert = UIAlertController(title: model.title, message: model.message, preferredStyle: .alert)
-        let action = UIAlertAction(title: model.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else {return}
-            model.completion()
-            questionFactory?.requestNextQuestion()
-            self.imageView.layer.borderColor = UIColor.clear.cgColor
-        }
-        alert.addAction(action)
-        present(alert, animated: true, completion: nil)
-    }
-    
-    // показывает либо следующий вопрос, либо результат квиза
-    private func showNextQuestionOrResults() {
-        yesButton.isEnabled = true
-        noButton.isEnabled = true
-        imageView.layer.borderWidth = 0
-        if presenter.isLastQuestion() {
-            statisticService?.store(correct: correctAnswers, total: presenter.questionAmount)
-            let text = """
-            Ваш результат: \(correctAnswers)/\(presenter.questionAmount)
-            Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
-            Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(statisticService?.bestGame.total ?? 0) (\(statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString))
-            Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))%
-            """
-            
-            let alertModel = AlertModel(
-                title: "Этот раунд окончен!",
-                message: text,
-                buttonText: "Сыграть еще раз",
-                completion: { [weak self] in
-                guard let self else { return }
-                    self.presenter.resetQuestionIndex()
-                self.correctAnswers = 0
-                    questionFactory?.requestNextQuestion()
-            })
-            alertPresenter?.presenterAlert(with: alertModel)
-        } else {
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
+    func showNextQuestionOrResults() {
+        previewImage.layer.borderWidth = 0
+        [yesButton, noButton].forEach { $0.isEnabled = true }
     }
 }

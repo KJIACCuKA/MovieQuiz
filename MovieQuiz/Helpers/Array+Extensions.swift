@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 extension Array {
     subscript(safe index: Index) -> Element? {
