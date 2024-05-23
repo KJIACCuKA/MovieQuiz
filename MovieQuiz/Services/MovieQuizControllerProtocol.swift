@@ -1,6 +1,6 @@
 import UIKit
 
-protocol MovieQuizViewControllerProtocol {
+protocol MovieQuizViewControllerProtocol: AnyObject {
     func showAnswerResult(isCorrect: Bool)
     func showNextQuestionOrResults()
     func setupGame(with model: QuizQuestion)

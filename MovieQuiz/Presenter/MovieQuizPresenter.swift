@@ -2,7 +2,7 @@ import UIKit
 
 final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     
-    var view: MovieQuizViewControllerProtocol?
+    weak var view: MovieQuizViewControllerProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticServiceProtocol?
     
